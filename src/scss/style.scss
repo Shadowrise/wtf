@@ -1,0 +1,13 @@
+@import '../../node_modules/normalize.css/normalize';
+
+$primary-color: rgb(46, 116, 86);
+
+body {
+  color: $primary-color;
+  font-size: 10px;
+
+  div {
+    display: flex;
+    font-size: 5rem;
+  }
+}

@@ -1,4 +1,4 @@
-import gulp from 'gulp'
+import { src, dest, watch, parallel, series } from 'gulp'
 import sass from 'gulp-sass'
 import sassCompiler from 'node-sass'
 import babel from 'gulp-babel'
@@ -14,78 +14,89 @@ import sourcemaps from 'gulp-sourcemaps'
 
 sass.compiler = sassCompiler
 
+const dirs = {
+  src: 'src',
+  dist: 'dist'
+}
+
 const paths = {
   html: {
-    src: 'src/index.html',
-    dist: 'dist/'
+    src: `${dirs.src}/index.html`,
+    dist: `${dirs.dist}/`
   },
   styles: {
-    src: 'src/scss/**/*.scss',
-    dist: 'dist/css'
+    src: `${dirs.src}/scss/**/*.scss`,
+    dist: `${dirs.dist}/css`
   },
   scripts: {
-    src: 'src/js/**/*.js',
-    dist: 'dist/scripts'
+    src: `${dirs.src}/js/**/*.js`,
+    dist: `${dirs.dist}/scripts`
   }
 }
 
-export function clean() {
-  return del(['dist/css', 'dist/scripts'])
-}
+// Clean
+export const clean = () => del([dirs.dist])
 
-export function styles() {
-  return (
-    gulp
-      .src(paths.styles.src)
-      .pipe(plumber())
-      .pipe(sourcemaps.init())
-      .pipe(sass({ outputStyle: 'compressed' }).on('error', sass.logError))
-      .pipe(
-        autoprefixer({
-          cascade: false
-        })
-      )
-      .pipe(cleanCSS())
-      // pass in options to the stream
-      .pipe(
-        rename({
-          basename: 'style',
-          suffix: '.min'
-        })
-      )
-      .pipe(sourcemaps.write('.'))
-      .pipe(plumber.stop())
-      .pipe(gulp.dest(paths.styles.dist))
-  )
-}
+// Styles
+export const styles = () =>
+  src(paths.styles.src)
+    .pipe(plumber())
+    .pipe(sourcemaps.init())
+    .pipe(sass({ outputStyle: 'compressed' }).on('error', sass.logError))
+    .pipe(
+      autoprefixer({
+        cascade: false
+      })
+    )
+    .pipe(
+      cleanCSS({
+        level: 2
+      })
+    )
+    // pass in options to the stream
+    .pipe(
+      rename({
+        basename: 'style',
+        suffix: '.min'
+      })
+    )
+    .pipe(sourcemaps.write('.'))
+    .pipe(dest(paths.styles.dist))
+    .pipe(plumber.stop())
+    .pipe(browserSync.stream())
 
-export function html() {
-  return gulp.src(paths.html.src).pipe(gulp.dest(paths.html.dist))
-}
+// Html
+export const html = () =>
+  src(paths.html.src)
+    .pipe(dest(paths.html.dist))
+    .pipe(browserSync.stream())
 
-export function scripts() {
-  return gulp
-    .src(paths.scripts.src, { sourcemaps: true })
+// Scripts
+export const scripts = () =>
+  src(paths.scripts.src)
+    .pipe(plumber())
+    .pipe(sourcemaps.init())
     .pipe(concat('main.min.js'))
-    .pipe(uglify())
-    .pipe(gulp.dest(paths.scripts.dist))
-}
+    // .pipe(babel({ presets: ['es2015'] }))
+    .pipe(uglify({ toplevel: 2 }))
+    .pipe(sourcemaps.write('.'))
+    .pipe(dest(paths.scripts.dist))
+    .pipe(plumber.stop())
+    .pipe(browserSync.stream())
 
-export function sync(done) {
+export const sync = () => {
   browserSync.init({
     server: {
-      baseDir: 'dist/'
+      baseDir: `${dirs.dist}/`
     }
   })
-  done()
+
+  watch(paths.scripts.src, scripts)
+  watch(paths.styles.src, styles)
+  watch(paths.html.src, html)
 }
 
-export function watch() {
-  gulp.watch(paths.scripts.src, scripts).on('change', browserSync.reload)
-  gulp.watch(paths.styles.src, styles).on('change', browserSync.reload)
-  gulp.watch(paths.html.src, html).on('change', browserSync.reload)
-}
+export const build = series(clean, parallel(scripts, styles, html))
+export const serve = series(build, sync)
 
-export const build = gulp.series(clean, scripts, styles, html)
-export const serve = gulp.series(build, sync, watch)
 export default serve

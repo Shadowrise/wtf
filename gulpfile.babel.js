@@ -11,6 +11,7 @@ import browserSync from 'browser-sync'
 import autoprefixer from 'gulp-autoprefixer'
 import plumber from 'gulp-plumber'
 import sourcemaps from 'gulp-sourcemaps'
+import htmlmin from 'gulp-htmlmin'
 
 sass.compiler = sassCompiler
 
@@ -25,11 +26,19 @@ const paths = {
     dist: `${dirs.dist}/`
   },
   styles: {
-    src: `${dirs.src}/scss/**/*.scss`,
+    src: [
+      'node_modules/normalize.css/normalize.css',
+      `${dirs.src}/scss/**/*.scss`
+    ],
     dist: `${dirs.dist}/css`
   },
   scripts: {
-    src: `${dirs.src}/js/**/*.js`,
+    src: [`${dirs.src}/js/main.js`],
+    dist: `${dirs.dist}/scripts`
+  },
+
+  libs: {
+    src: ['node_modules/jquery/dist/jquery.min.js'],
     dist: `${dirs.dist}/scripts`
   }
 }
@@ -42,6 +51,7 @@ export const styles = () =>
   src(paths.styles.src)
     .pipe(plumber())
     .pipe(sourcemaps.init())
+    .pipe(concat('style.min.css'))
     .pipe(sass({ outputStyle: 'compressed' }).on('error', sass.logError))
     .pipe(
       autoprefixer({
@@ -53,13 +63,6 @@ export const styles = () =>
         level: 2
       })
     )
-    // pass in options to the stream
-    .pipe(
-      rename({
-        basename: 'style',
-        suffix: '.min'
-      })
-    )
     .pipe(sourcemaps.write('.'))
     .pipe(dest(paths.styles.dist))
     .pipe(plumber.stop())
@@ -68,6 +71,7 @@ export const styles = () =>
 // Html
 export const html = () =>
   src(paths.html.src)
+    .pipe(htmlmin({ collapseWhitespace: true }))
     .pipe(dest(paths.html.dist))
     .pipe(browserSync.stream())
 
@@ -84,6 +88,14 @@ export const scripts = () =>
     .pipe(plumber.stop())
     .pipe(browserSync.stream())
 
+export const libs = () =>
+  src(paths.libs.src)
+    .pipe(plumber())
+    .pipe(concat('libs.min.js'))
+    .pipe(uglify({ toplevel: 2 }))
+    .pipe(dest(paths.libs.dist))
+    .pipe(plumber.stop())
+
 export const sync = () => {
   browserSync.init({
     server: {
@@ -96,7 +108,7 @@ export const sync = () => {
   watch(paths.html.src, html)
 }
 
-export const build = series(clean, parallel(scripts, styles, html))
+export const build = series(clean, parallel(scripts, libs, styles, html))
 export const serve = series(build, sync)
 
 export default serve

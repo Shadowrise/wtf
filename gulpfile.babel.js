@@ -37,12 +37,13 @@ const paths = {
     dist: `${dirs.dist}/scripts`
   },
   imgs: {
-    src: [`${dirs.src}/img/*.png`],
+    src: [`${dirs.src}/img/*.png`, `${dirs.src}/img/*.jpg`],
     dist: `${dirs.dist}/img`
   },
   libs: {
     src: [
       'node_modules/jquery/dist/jquery.min.js',
+      'node_modules/parallax-js/dist/parallax.min.js',
       'node_modules/bootstrap/dist/js/bootstrap.bundle.min.js'
     ],
     dist: `${dirs.dist}/scripts`
@@ -92,8 +93,12 @@ export const scripts = () =>
   src(paths.scripts.src)
     .pipe(plumber())
     .pipe(sourcemaps.init())
+    // .pipe(
+    //   babel({
+    //     presets: ['@babel/env']
+    //   })
+    // )
     .pipe(concat('main.min.js'))
-    // .pipe(babel({ presets: ['es2015'] }))
     .pipe(uglify({ toplevel: 2 }))
     .pipe(sourcemaps.write('.'))
     .pipe(dest(paths.scripts.dist))

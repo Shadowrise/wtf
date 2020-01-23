@@ -6,3 +6,9 @@ $primary-color: rgb(46, 116, 86);
     width: 2rem;
   }
 }
+
+#scene {
+  width: 1500px;
+  height: 1500px;
+  background-image: url('../img/parallax.jpg');
+}

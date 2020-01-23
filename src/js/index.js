@@ -1,3 +1,7 @@
+import $ from 'jquery'
+import bootstrap from 'bootstrap'
+import Parallax from 'parallax-js'
+
 $(function() {
   debugger
   let a = $('#scene').html()
@@ -8,3 +12,5 @@ $(function() {
 
   parallaxInstance.friction(0.2, 0.2)
 })
+
+import '.././scss/style.scss'

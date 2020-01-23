@@ -1,3 +1,5 @@
+@import '~bootstrap/scss/bootstrap';
+
 $primary-color: rgb(46, 116, 86);
 
 .header {
@@ -10,5 +12,5 @@ $primary-color: rgb(46, 116, 86);
 #scene {
   width: 1500px;
   height: 1500px;
-  background-image: url('../img/parallax.jpg');
+  //background-image: url('../img/parallax.jpg');
 }

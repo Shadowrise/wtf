@@ -28,8 +28,8 @@
     "node-sass": "^4.13.1"
   },
   "dependencies": {
-    "jquery": "^3.4.1",
-    "normalize.css": "^8.0.1"
+    "bootstrap": "^4.4.1",
+    "jquery": "^3.4.1"
   },
   "browserslist": [
     "defaults"

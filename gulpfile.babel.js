@@ -27,7 +27,7 @@ const paths = {
   },
   styles: {
     src: [
-      'node_modules/normalize.css/normalize.css',
+      'node_modules/bootstrap/dist/css/bootstrap.min.css',
       `${dirs.src}/scss/**/*.scss`
     ],
     dist: `${dirs.dist}/css`
@@ -36,9 +36,15 @@ const paths = {
     src: [`${dirs.src}/js/main.js`],
     dist: `${dirs.dist}/scripts`
   },
-
+  imgs: {
+    src: [`${dirs.src}/img/*.png`],
+    dist: `${dirs.dist}/img`
+  },
   libs: {
-    src: ['node_modules/jquery/dist/jquery.min.js'],
+    src: [
+      'node_modules/jquery/dist/jquery.min.js',
+      'node_modules/bootstrap/dist/js/bootstrap.bundle.min.js'
+    ],
     dist: `${dirs.dist}/scripts`
   }
 }
@@ -75,6 +81,12 @@ export const html = () =>
     .pipe(dest(paths.html.dist))
     .pipe(browserSync.stream())
 
+// Images
+export const imgs = () =>
+  src(paths.imgs.src)
+    .pipe(dest(paths.imgs.dist))
+    .pipe(browserSync.stream())
+
 // Scripts
 export const scripts = () =>
   src(paths.scripts.src)
@@ -92,7 +104,6 @@ export const libs = () =>
   src(paths.libs.src)
     .pipe(plumber())
     .pipe(concat('libs.min.js'))
-    .pipe(uglify({ toplevel: 2 }))
     .pipe(dest(paths.libs.dist))
     .pipe(plumber.stop())
 
@@ -108,7 +119,7 @@ export const sync = () => {
   watch(paths.html.src, html)
 }
 
-export const build = series(clean, parallel(scripts, libs, styles, html))
+export const build = series(clean, parallel(scripts, libs, styles, html, imgs))
 export const serve = series(build, sync)
 
 export default serve

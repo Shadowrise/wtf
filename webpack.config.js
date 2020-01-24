@@ -8,7 +8,7 @@ module.exports = (env, options) => ({
 
   output: {
     path: path.resolve('dist'),
-    filename: 'index.js'
+    filename: 'index.bundle.js'
   },
 
   module: {
@@ -26,15 +26,15 @@ module.exports = (env, options) => ({
             loader: 'css-loader',
             options: { sourceMap: options.mode === 'development' }
           },
-          // {
-          //   loader: 'postcss-loader',
-          //   options: {
-          //     sourceMap: options.mode === 'development'
-          //     // plugins: function() {
-          //     //   return [require('precss'), require('autoprefixer')]
-          //     // }
-          //   }
-          // },
+          {
+            loader: 'postcss-loader',
+            options: {
+              sourceMap: options.mode === 'development',
+              plugins: function() {
+                return [require('autoprefixer')]
+              }
+            }
+          },
           {
             loader: 'sass-loader',
             options: {
@@ -48,7 +48,7 @@ module.exports = (env, options) => ({
       }
     ]
   },
-  devtool: options.mode === 'development' ? 'eval-sourcemap' : false,
+  devtool: options.mode === 'development' ? 'source-map' : false,
   plugins: [
     new HtmlWebpackPlugin({
       template: __dirname + '/src/index.html'
@@ -60,6 +60,10 @@ module.exports = (env, options) => ({
   ],
 
   devServer: {
+    stats: {
+      children: false,
+      maxModules: 0
+    },
     overlay: true
   }
 })

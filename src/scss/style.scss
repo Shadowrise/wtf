@@ -1,16 +1,17 @@
-@import '~bootstrap/scss/bootstrap';
+@import "~bootstrap/scss/bootstrap";
 
 $primary-color: rgb(46, 116, 86);
 
 .header {
   img {
+    display: flex;
     height: 2rem;
     width: 2rem;
   }
 }
 
-#scene {
-  width: 1500px;
-  height: 1500px;
-  //background-image: url('../img/parallax.jpg');
-}
+// #scene {
+//   width: 1500px;
+//   height: 1500px;
+//   //background-image: url('../img/parallax.jpg');
+// }
